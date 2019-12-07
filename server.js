@@ -34,6 +34,7 @@ const ICONS = {
   'angle-right': 0xf105,
   'terminal': 0xf120,
   'code': 0xf121,
+  'code-branch': 0xf126,
   'file-pdf': 0xf1c1,
   'file-image': 0xf1c5,
   'server': 0xf233,
@@ -311,6 +312,8 @@ app.get('/slides', async (req, res) => {
   slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [6, 13], comment: 'Add each letter to a new string called `output`.'});
   slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 15, comment: 'Print out the output string. We could write it to a file as well if we wanted to.'});
   slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 18, comment: '`process.argv` is a list of our command line arguments. Argument 2 is the filename.'});
+
+  slides.addIconSlide('External APIs', 'code-branch');
 
   const codeGithub = await readFileAsync('examples/request-github.js', 'utf-8');
   slides.addCodeSlide('Requesting other APIs', codeGithub);
