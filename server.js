@@ -26,9 +26,18 @@ const PAGE_WIDTH = 800;
 const PAGE_HEIGHT = 600;
 
 const ICONS = {
-  server: 0xf233,
-  star: 0xf005,
+  'heart': 0xf004,
+  'star': 0xf005,
   'angle-right': 0xf105,
+  'server': 0xf233,
+};
+
+function randomChoice(l) {
+  return l[Math.floor(Math.random() * l.length)];
+}
+
+function random(min, max) {
+  return min + Math.random() * (max - min);
 }
 
 class SlideGenerator {
@@ -128,7 +137,16 @@ class SlideGenerator {
     const comment = options && options.comment;
     if (comment) {
       y += 24;
-      this._doc.fillColor(this.fgColor).font(FONT_REGULAR).fontSize(18).text(comment, 50, y, { lineBreak: true });
+      let inCode = false;
+      this._doc.x = 50;
+      this._doc.y = y;
+      for (const part of comment.split('`')) {
+        const font = inCode ? FONT_MONO_BOLD : FONT_REGULAR;
+        this._doc.fillColor(this.fgColor).font(font).fontSize(18).text(part, { lineBreak: true, continued: true });
+        inCode = !inCode;
+      }
+      // To avoid the last `continued` option.
+      this._doc.text('');
     }
   }
 
@@ -199,26 +217,28 @@ app.get('/slides', async (req, res) => {
 
   const codeGenerateJSON = await readFileAsync('examples/generate-json.js', 'utf-8');
   slides.addCodeSlide('Express server returning JSON', codeGenerateJSON);
-  slides.addCodeSlide('Express server returning JSON', codeGenerateHTML, { highlightLine: [6, 7, 8], comment: 'We write out a JSON object using res.json.'});
+  slides.addCodeSlide('Express server returning JSON', codeGenerateHTML, { highlightLine: [6, 7, 8], comment: 'We write out a JSON object using `res.json`.'});
   slides.addImageSlide('media/generate-json.png', 'Postman, showing the result of our Express app.');
 
   const codeGeneratePDF = await readFileAsync('examples/generate-pdf.js', 'utf-8');
   slides.addCodeSlide('Express server returning PDF', codeGeneratePDF);
-  slides.addCodeSlide('Express server returning PDF', codeGeneratePDF, { highlightLine: 2, comment: 'We need an extra dependency. We can install it using\n"npm install pdfkit".'});
+  slides.addCodeSlide('Express server returning PDF', codeGeneratePDF, { highlightLine: 2, comment: 'We need an extra dependency. We can install it using\n`npm install pdfkit`.'});
   slides.addCodeSlide('Express server returning PDF', codeGeneratePDF, { highlightLine: [8, 9, 10, 11], comment: 'We create a new PDFKit document, write out a string and send the document to the client.'});
   slides.addImageSlide('media/generate-pdf.png', 'Generating a PDF file from Express using PDFKit.');
+
+  // FIXME: multiple routes / request params
 
   slides.addTextSlide('Servers optional', 'In addition to servers, Node.js can be used to write command line tools.\n\nI use it to convert data, scrape websites, or generate images.');
 
   const codeEncrypt = await readFileAsync('examples/encrypt.js', 'utf-8');
   slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt);
   slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 1, comment: 'We need "fs", which is the file system module built into Node.js. We\'ll use promises and async/await.'});
-  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 4, comment: 'Read in the file to "encrypt".'});
+  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 4, comment: 'Read in the file to `encrypt`.'});
   slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 5, comment: 'Convert the text to capital letters.'});
   slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [7, 14], comment: 'Loop through all the letters of the text.'});
   slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [8, 12], comment: 'We only convert letters and leave other characters as-is.'});
   slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [9, 10, 11], comment: 'Perform our encryption magic. (This is the Caesar cipher. Look it up!)'});
-  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [6, 13], comment: 'Add each letter to a new string called "output".'});
+  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [6, 13], comment: 'Add each letter to a new string called `output`.'});
   slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 15, comment: 'Print out the output string. We could write it to a file as well if we wanted to.'});
   slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 18, comment: 'Call this function with an argument from the command line.'});
 
@@ -237,10 +257,9 @@ app.get('/slides', async (req, res) => {
 
   const codeCallbacks = await readFileAsync('examples/callbacks.js', 'utf-8');
   slides.addCodeSlide('Node.js runs on callbacks', codeCallbacks);
-  slides.addCodeSlide('Node.js runs on callbacks', codeCallbacks, { highlightLine: [3, 9], comment: 'The last argument of readFile is a callback function that gets executed when the file has been read (or an error has happened).'});
+  slides.addCodeSlide('Node.js runs on callbacks', codeCallbacks, { highlightLine: [3, 9], comment: 'The last argument of `readFile` is a callback function that gets executed when the file has been read (or an error has happened).'});
   slides.addCodeSlide('Node.js runs on callbacks', codeCallbacks, { highlightLine: [4, 5, 6, 7], comment: 'We check and report the error.'});
   slides.addCodeSlide('Node.js runs on callbacks', codeCallbacks, { highlightLine: 8, comment: 'Finally we can do something with the contents of the file.'});
-
 
   const codeCallbackHell = await readFileAsync('examples/callback-hell.js', 'utf-8');
   slides.addCodeSlide('Callback Hell', codeCallbackHell);
@@ -249,6 +268,30 @@ app.get('/slides', async (req, res) => {
   slides.addCodeSlide('Callback Hell', codeCallbackHell, { highlightLine: [6, 11], comment: 'This reads the input file...'});
   slides.addCodeSlide('Callback Hell', codeCallbackHell, { highlightLine: [8, 10], comment: 'This writes the output file...'});
   slides.addCodeSlide('Callback Hell', codeCallbackHell, { highlightLine: [10, 11, 12, 13], comment: 'WHAT IS THIS VOODOO MAGIC *?$!'});
+
+  const codePromises = await readFileAsync('examples/promises.js', 'utf-8');
+  slides.addCodeSlide('Promises', codePromises);
+  slides.addCodeSlide('Promises', codePromises, { highlightLine: [5, 6, 10, 11], comment: 'The readFile returns a `Promise`. We use `then` and `catch` on the result.'});
+  slides.addCodeSlide('Promises', codePromises, { highlightLine: [7, 8, 9], comment: 'writeFile also returns a `Promise`.'});
+  slides.addCodeSlide('Promises', codePromises, { highlightLine: [4, 8, 12], comment: 'writeFile does not return, but calls the `resolve` function we got when creating a new promise.'});
+
+  const codeAsyncAwait = await readFileAsync('examples/async-await.js', 'utf-8');
+  slides.addCodeSlide('Async / Await', codeAsyncAwait);
+  slides.addCodeSlide('Async / Await', codeAsyncAwait, { highlightLine: 5, comment: 'This is the same `readFile`, but we just use await instead of `then()`.'});
+  slides.addCodeSlide('Async / Await', codeAsyncAwait, { highlightLine: 5, comment: 'The same goes for `writeFile`.'});
+  slides.addCodeSlide('Async / Await', codeAsyncAwait, { highlightLine: [4, 8, 9, 10], comment: 'Error handling happens in try/catch, just like normal JavaScript code.'});
+  slides.addCodeSlide('Async / Await', codeAsyncAwait, { highlightLine: 3, comment: 'Note that you can only use `await` in a function that is tagged with `async`.'});
+
+  slides.addTitleSlide(`Thanks ${name}!`);
+  for (let i = 0; i < 100; i++) {
+    const size = randomChoice([12, 24, 36, 48]);
+    const x = random(-size, PAGE_WIDTH);
+    const y = random(-size, PAGE_HEIGHT);
+    slides._doc.opacity(0.2);
+    slides._addIcon('heart', size, x, y);
+    slides._doc.opacity(1.0);
+  }
+  slides._addFootNote('Code: https://github.com/fdb/hyf-nodejs-slides');
 
   slides.end();
 });
