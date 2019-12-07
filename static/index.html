@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>The Ultimate Node.js Slide Generator™</title>
+  <style>
+* { box-sizing: border-box; }
+html { font: 14px/1.4 sans-serif; background: #f7f7f7; color: #666; }
+body { max-width: 800px; margin: 50px auto; }
+.row { margin-bottom: 2rem; }
+label { display: block; font-weight: bold; margin-bottom: 0.2rem; }
+input[type="text"] { padding: 10px 20px; font: inherit; color: inherit; border-radius: 5px; border: 1px solid #999; outline: none; }
+input[type="text"]:focus { border-color: #339; }
+.colors { display: flex; flex-direction: row; }
+.color { display: flex; flex-direction: column; align-items: center; }
+.color { margin-right: 1rem; background: #eee; width: 100px; padding: 10px; border-radius: 5px; }
+.color__radio:checked + .color__button { border-color: #333; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); }
+.color__radio:checked + .color__button.color__invert { border-color: #fff; }
+.color__radio { visibility: hidden; }
+.color__button { width: 30px; height: 30px; border-radius: 5px; border: 2px solid transparent; margin-bottom: 0.3rem; }
+.color__name { font-size: 0.8rem; font-weight: normal; }
+.cta { color: #fff !important; text-transform: uppercase; text-decoration: none; background: #ed3330; padding: 20px; border-radius: 5px; display: inline-block; border: none; transition: all 0.4s ease 0s; }
+.cta:hover { background: #434343; box-shadow: 5px 40px -10px rgba(0,0,0,0.57); transition: all 0.4s ease 0s; }
+  </style>
+</head>
+<body>
+  <h1>The Ultimate Node.js Slide Generator™</h1>
+  <p>The slide generator generates your own custom Node.js slides.</p>
+  <p>It uses <a href="https://pdfkit.org/" target="_blank">PDFKit</a> to generate the slides.</p>
+  <form method="get" action="/slides">
+    <div class="row">
+      <label for="nameField">Your Name</label>
+      <input type="text" name="name" id="nameField">
+    </div>
+    <div class="row">
+      <label for="colorField">Your Favorite Color</label>
+      <div class="colors">
+        <label class="color"><input class="color__radio" type="radio" name="color" value="#11B5E4"><span class="color__button" style="background-color: #11B5E4"></span><span class="color__name">Cyan</span></label>
+        <label class="color"><input class="color__radio" type="radio" name="color" value="#162521"><span class="color__button color__invert" style="background-color: #162521"></span><span class="color__name">Jungle Green</span></label>
+        <label class="color"><input class="color__radio" type="radio" name="color" value="#791E94"><span class="color__button color__invert" style="background-color: #791E94"></span><span class="color__name">Purple</span></label>
+        <label class="color"><input class="color__radio" type="radio" name="color" value="#23967F"><span class="color__button" style="background-color: #23967F"></span><span class="color__name">Emerald</span></label>
+        <label class="color"><input class="color__radio" type="radio" name="color" value="#E9806E"><span class="color__button" style="background-color: #E9806E"></span><span class="color__name">Salmon</span></label>
+        <label class="color"><input class="color__radio" type="radio" name="color" value="#F5F0F6"><span class="color__button" style="background-color: #F5F0F6"></span><span class="color__name">White Smoke</span></label>
+      </div>
+    </div>
+    <div class="row">
+      <button class="cta">Generate!</button>
+    </div>
+  </form>
+</body>
+</html>
