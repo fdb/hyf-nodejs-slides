@@ -1,7 +1,7 @@
 const express = require('express');
 const request = require('request-promise-native');
 const app = express();
-const port = process.env.PORT || 5555;
+const port = process.env.PORT || 3000;
 
 app.get('/', async (req, res) => {
   const user = req.query.user || 'octocat';

@@ -1,14 +1,12 @@
 const express = require('express');
-const PDFDocument = require('pdfkit');
+
 const app = express();
+app.use('/static', express.static('images'));
+
 const port = process.env.PORT || 3000;
 
 app.get('/', (req, res) => {
-  const name = req.query.name || 'Stranger';
-  const doc = new PDFDocument();
-  doc.pipe(res);
-  doc.text(`Hello, ${name}!`);
-  doc.end();
+  res.end(`<html><img src="/static/cat.jpg" alt="Cat"></html>`);
 });
 
 app.listen(port, () => {
