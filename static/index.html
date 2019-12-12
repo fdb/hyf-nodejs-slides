@@ -19,14 +19,15 @@ input[type="text"]:focus { border-color: #339; }
 .color__radio { visibility: hidden; }
 .color__button { width: 30px; height: 30px; border-radius: 5px; border: 2px solid transparent; margin-bottom: 0.3rem; }
 .color__name { font-size: 0.8rem; font-weight: normal; }
-.cta { color: #fff !important; text-transform: uppercase; text-decoration: none; background: #ed3330; padding: 20px; border-radius: 5px; display: inline-block; border: none; transition: all 0.4s ease 0s; outline: none; }
-.cta:hover { background: #434343; box-shadow: 5px 40px -10px rgba(0,0,0,0.57); transition: all 0.4s ease 0s; }
+.cta { cursor: pointer; color: #fff !important; text-transform: uppercase; text-decoration: none; background: #7b79f1; padding: 10px 15px; border-radius: 5px; display: inline-block; border: none; transition: all 0.4s ease 0s; outline: none; margin-right: 1rem; }
+.cta:hover { background: #2b3485; transition: all 0.4s ease 0s; }
   </style>
 </head>
 <body>
   <h1>The Ultimate Node.js Slide Generator™</h1>
   <p>The slide generator generates your own custom Node.js slides.</p>
   <p>It uses <a href="https://pdfkit.org/" target="_blank">PDFKit</a> to generate the slides.</p>
+  <p>Source code for the slide generator is on <a href="https://github.com/fdb/hyf-nodejs-slides">GitHub</a>.</p>
   <form method="get" action="/slides">
     <div class="row">
       <label for="nameField">Your Name</label>
@@ -44,8 +45,23 @@ input[type="text"]:focus { border-color: #339; }
       </div>
     </div>
     <div class="row">
-      <button class="cta">Generate!</button>
+      <input type="hidden" id="input-week" name="week" value="1" />
+      <button type="button" class="cta" data-week="1">Week 1 Slides</button>
+      <button type="button" class="cta" data-week="2">Week 2 Slides</button>
     </div>
   </form>
+  <script>
+  // Meh this code sucks. I couldn't find a better way to link buttons to query parameters.
+  const buttons = Array.from(document.querySelectorAll('button.cta'));
+  for (const button of buttons) {
+    button.addEventListener('click', (e) => {
+      document.querySelector('#input-week').value = e.target.dataset.week;
+      document.querySelector('form').submit();
+    });
+  }
+  document.querySelector('form').onsubmit = () => {
+    return false;
+  };
+  </script>
 </body>
 </html>

@@ -35,8 +35,10 @@ const ICONS = {
   'terminal': 0xf120,
   'code': 0xf121,
   'code-branch': 0xf126,
+  'cubes': 0xf1b3,
   'file-pdf': 0xf1c1,
   'file-image': 0xf1c5,
+  'file-code': 0xf1c9,
   'server': 0xf233,
   'route': 0xf4d7,
 };
@@ -173,8 +175,8 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/slides', async (req, res) => {
-
   // Read settings from the user.
+  const week = parseInt(req.query.week || '1');
   const name = req.query.name || 'Stranger';
   const bgColor = req.query.color || '#fff';
   const fgColor = MATCHING_COLORS[bgColor] || '#fff';
@@ -183,8 +185,19 @@ app.get('/slides', async (req, res) => {
   const slides = new SlideGenerator(name, fgColor, bgColor);
   slides.pipe(res);
 
-  slides.addIntroSlide('Node.js — Week 1', 'Hack Your Future Belgium');
+  slides.addIntroSlide(`Node.js — Week ${week}`, 'Hack Your Future Belgium');
 
+  if (week === 1) {
+    await _generateWeek1Slides(slides, name);
+  } else if (week === 2) {
+    await _generateWeek2Slides(slides, name);
+  }
+  
+  slides.end();
+});
+
+
+async function _generateWeek1Slides(slides, name) {
   // Add the "rainbow" slide.
   slides._addSlide();
   const colors = Object.keys(MATCHING_COLORS);
@@ -287,40 +300,77 @@ app.get('/slides', async (req, res) => {
   slides.addCodeSlide('Dynamic Routes', codePizzaRoutes, { highlightLine: 13, comment: 'Otherwise we return "ok" with the pizza object spliced in.'});
 
   slides.addImageSlide('media/routes-pizza.png', 'Screenshot of Postman showing our route.');
+}
 
-  slides.addIconSlide('PDF Generation', 'file-pdf');
-
-  const codeGeneratePDF = await readFileAsync('examples/generate-pdf.js', 'utf-8');
-  slides.addCodeSlide('Express server returning PDF', codeGeneratePDF);
-  slides.addCodeSlide('Express server returning PDF', codeGeneratePDF, { highlightLine: 2, comment: 'We need an extra dependency. We can install it using `npm install pdfkit`.'});
-  slides.addCodeSlide('Express server returning PDF', codeGeneratePDF, { highlightLine: [8, 9, 10, 11], comment: 'We create a new PDFKit document, write out a string and send the document to the client.'});
-  slides.addImageSlide('media/generate-pdf.png', 'Generating a PDF file from Express using PDFKit.');
-  slides.addImageSlide('media/pdf-invoice.png', 'This is used to generate PDF invoices, for example (Example: Prince by YesLogic).');
+async function _generateWeek2Slides(slides, name) {
+  slides.addBulletsSlide('Week 2 Plan', [
+    'Node.js on the command line',
+    'Reading and Writing files',
+    'Modules and require',
+    'Node.js event loop',
+    'Homework: DIY Wiki',
+  ]);
 
   slides.addIconSlide('Node.js on the command line', 'terminal');
 
   slides.addTextSlide('Servers optional', 'In addition to servers, Node.js can be used to write command line tools.\n\nI use it to convert data, scrape websites, or generate images.');
 
-  const codeEncrypt = await readFileAsync('examples/encrypt.js', 'utf-8');
-  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt);
-  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 1, comment: 'We need "fs", which is the file system module built into Node.js. We\'ll use promises and async/await.'});
-  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 4, comment: 'Read in the file to `encrypt`.'});
-  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 5, comment: 'Convert the text to capital letters.'});
-  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [7, 14], comment: 'Loop through all the letters of the text.'});
-  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [8, 12], comment: 'We only convert letters and leave other characters as-is.'});
-  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [9, 10, 11], comment: 'Perform our encryption magic. (This is the Caesar cipher. Look it up!)'});
-  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [6, 13], comment: 'Add each letter to a new string called `output`.'});
-  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 15, comment: 'Print out the output string. We could write it to a file as well if we wanted to.'});
-  slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 18, comment: '`process.argv` is a list of our command line arguments. Argument 2 is the filename.'});
+  slides.addIconSlide('Reading and Writing files', 'file-code');
 
-  slides.addIconSlide('External APIs', 'code-branch');
+  const readFileSimple = await readFileAsync('examples/read-file-simple.js', 'utf-8');
+  slides.addCodeSlide('Reading a Simple File', readFileSimple);
+  slides.addCodeSlide('Reading a File', readFileSimple, { highlightLine: 1, comment: 'We import `fs`. We\'ll use promises and async/await.'});
+  slides.addCodeSlide('Reading a File', readFileSimple, { highlightLine: 8, comment: 'Get the name of the file from the command line arguments. We can access them using `process.argv`. Argument 0 = `node`, argument 1 = `read-file-simple.js`, argument 2 = your custom args.'});
+  slides.addCodeSlide('Reading a File', readFileSimple, { highlightLine: [9, 3, 6], comment: 'We call our function with the filename argument.'});
+  slides.addCodeSlide('Reading a File', readFileSimple, { highlightLine: 4, comment: 'Read in the file. Note that we have to `await`. The `\'utf-8\'` parameter is necessary, otherwise Node.js returns a `Buffer` object, not a string.'});
+  slides.addCodeSlide('Reading a File', readFileSimple, { highlightLine: 5, comment: 'Log out the text.'});
 
-  const codeGithub = await readFileAsync('examples/request-github.js', 'utf-8');
-  slides.addCodeSlide('Requesting other APIs', codeGithub);
-  slides.addCodeSlide('Requesting other APIs', codeGithub, { highlightLine: 2, comment: 'We use the "request" and "request-promise-native" modules.'});
-  slides.addCodeSlide('Requesting other APIs', codeGithub, { highlightLine: [8, 9, 10, 11, 12], comment: 'We build an options object to give to Request. It contains the URL, User-Agent headers, and an option to automatically convert to JSON.'});
-  slides.addCodeSlide('Requesting other APIs', codeGithub, { highlightLine: 13, comment: 'Fire off the request. This can take some time but because of the Node.js event loop, other requests can keep coming in.'});
-  slides.addCodeSlide('Requesting other APIs', codeGithub, { highlightLine: 14, comment: 'Do something with the response and send it to our client.'});
+  const readQuotesFile = await readFileAsync('examples/read-file-quotes.js', 'utf-8');
+  slides.addCodeSlide('Choosing a Quote', readQuotesFile);
+  slides.addCodeSlide('Choosing a Quote', readQuotesFile, { highlightLine: [1, 2], comment: 'We import both `fs` and `path`. We\'ll use promises and async/await.'});
+  slides.addCodeSlide('Choosing a Quote', readQuotesFile, { highlightLine: 10, comment: 'First let\'s find the correct location of the file. Use `path.join` to combine parts of the path in a platform-independent way.'});
+  slides.addCodeSlide('Choosing a Quote', readQuotesFile, { highlightLine: 11, comment: 'Read in the file. Note that we have to `await`. The `\'utf-8\'` parameter is necessary, otherwise Node.js returns a `Buffer` object, not a string.'});
+  slides.addCodeSlide('Choosing a Quote', readQuotesFile, { highlightLine: 12, comment: 'Remove the last new lines so splitting into quotes doesn\'t return a last empty line.'});
+  slides.addCodeSlide('Choosing a Quote', readQuotesFile, { highlightLine: 13, comment: 'Split the text into multiple lines.'});
+  slides.addCodeSlide('Choosing a Quote', readQuotesFile, { highlightLine: 14, comment: 'Choose a quote. `choice` is not implemented so let\'s do it ourselves!'});
+  slides.addCodeSlide('Choosing a Quote', readQuotesFile, { highlightLine: [4, 5, 6, 7], comment: 'JS only provides `Math.random` which returns values between 0-1. Multiply these with the length of the array and chop of the floating point. Use that as the index.'});
+  slides.addCodeSlide('Choosing a Quote', readQuotesFile, { highlightLine: 15, comment: 'Log out the chosen quote.'});
+  slides.addCodeSlide('Choosing a Quote', readQuotesFile, { highlightLine: [9, 16, 18], comment: 'Why do we use main here? We need a function to be able to use `async`/`await`. We\'ll talk about this later.'});
+
+
+  slides.addBulletsSlide('Exercise: writing a file', [
+    'Read in a file, convert it the text to uppercase, then write it out.',
+    'The input and output filenames come from the command line (process.argv).',
+    'Lookup how to write a file using Node.js in the documentation: https://nodejs.org/api/'
+  ]);
+
+  // const codeEncrypt = await readFileAsync('examples/encrypt.js', 'utf-8');
+  // slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt);
+  // slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 1, comment: 'We need "fs", which is the file system module built into Node.js. We\'ll use promises and async/await.'});
+  // slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 4, comment: 'Read in the file to `encrypt`.'});
+  // slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 5, comment: 'Convert the text to capital letters.'});
+  // slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [7, 14], comment: 'Loop through all the letters of the text.'});
+  // slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [8, 12], comment: 'We only convert letters and leave other characters as-is.'});
+  // slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [9, 10, 11], comment: 'Perform our encryption magic. (This is the Caesar cipher. Look it up!)'});
+  // slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: [6, 13], comment: 'Add each letter to a new string called `output`.'});
+  // slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 15, comment: 'Print out the output string. We could write it to a file as well if we wanted to.'});
+  // slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 18, comment: '`process.argv` is a list of our command line arguments. Argument 2 is the filename.'});
+
+  slides.addIconSlide('Modules and require', 'cubes');
+
+  slides.addTextSlide('Node.js Modules', 'When projects become bigger, we use modules to split them up.', { fontSize: 24 });
+  slides.addTextSlide('Node.js Modules', 'When you import external codes, you also use modules.', { fontSize: 24 });
+  slides.addTextSlide('Node.js Modules', 'There\'s not much difference between your own modules and imported modules.', { fontSize: 24 });
+
+  const codeModulesIndex = await readFileAsync('examples/modules/index.js', 'utf-8');
+  slides.addCodeSlide('Modules: index.js', codeModulesIndex);
+  slides.addCodeSlide('Modules: index.js', codeModulesIndex, { highlightLine: 1, comment: 'Import something from our own module. Note the `./` syntax to import from your local directory instead of node_modules.'});
+  slides.addCodeSlide('Modules: index.js', codeModulesIndex, { highlightLine: 4, comment: 'Use the function to reverse the string.'});
+  
+  const codeModulesStringUtils = await readFileAsync('examples/modules/string-utils.js', 'utf-8');
+  slides.addCodeSlide('Modules: string-utils.js', codeModulesStringUtils);
+  slides.addCodeSlide('Modules: string-utils.js', codeModulesStringUtils, { highlightLine: 1, comment: 'We need to be explicit on which functions from a file to export. We can assign it to `exports` like here, or use `module.exports`.'});
+  slides.addCodeSlide('Modules: string-utils.js', codeModulesStringUtils, { highlightLine: [2, 3, 4, 5, 6], comment: 'Use a regular for loop to reverse the string.'});
 
   slides.addTitleSlide('The Node Event Loop');
   slides.addImageSlide('media/node-event-loop.png', 'From "Building a Network Application with Node"');
@@ -355,6 +405,22 @@ app.get('/slides', async (req, res) => {
   slides.addCodeSlide('Async / Await', codeAsyncAwait, { highlightLine: [4, 8, 9, 10], comment: 'Error handling happens in try/catch, just like normal JavaScript code.'});
   slides.addCodeSlide('Async / Await', codeAsyncAwait, { highlightLine: 3, comment: 'Note that you can only use `await` in a function that is tagged with `async`.'});
 
+  slides.addIconSlide('External APIs', 'code-branch');
+  const codeGithub = await readFileAsync('examples/request-github.js', 'utf-8');
+  slides.addCodeSlide('Requesting other APIs', codeGithub);
+  slides.addCodeSlide('Requesting other APIs', codeGithub, { highlightLine: 2, comment: 'We use the "request" and "request-promise-native" modules.'});
+  slides.addCodeSlide('Requesting other APIs', codeGithub, { highlightLine: [8, 9, 10, 11, 12], comment: 'We build an options object to give to Request. It contains the URL, User-Agent headers, and an option to automatically convert to JSON.'});
+  slides.addCodeSlide('Requesting other APIs', codeGithub, { highlightLine: 13, comment: 'Fire off the request. This can take some time but because of the Node.js event loop, other requests can keep coming in.'});
+  slides.addCodeSlide('Requesting other APIs', codeGithub, { highlightLine: 14, comment: 'Do something with the response and send it to our client.'});
+
+  slides.addIconSlide('PDF Generation', 'file-pdf');
+  const codeGeneratePDF = await readFileAsync('examples/generate-pdf.js', 'utf-8');
+  slides.addCodeSlide('Express server returning PDF', codeGeneratePDF);
+  slides.addCodeSlide('Express server returning PDF', codeGeneratePDF, { highlightLine: 2, comment: 'We need an extra dependency. We can install it using `npm install pdfkit`.'});
+  slides.addCodeSlide('Express server returning PDF', codeGeneratePDF, { highlightLine: [8, 9, 10, 11], comment: 'We create a new PDFKit document, write out a string and send the document to the client.'});
+  slides.addImageSlide('media/generate-pdf.png', 'Generating a PDF file from Express using PDFKit.');
+  slides.addImageSlide('media/pdf-invoice.png', 'This is used to generate PDF invoices, for example (Example: Prince by YesLogic).');
+  
   slides.addTitleSlide(`Thanks ${name}!`);
   for (let i = 0; i < 100; i++) {
     const size = randomChoice([12, 24, 36, 48]);
@@ -365,9 +431,7 @@ app.get('/slides', async (req, res) => {
     slides._doc.opacity(1.0);
   }
   slides._addFootNote('Code: https://github.com/fdb/hyf-nodejs-slides');
-
-  slides.end();
-});
+}
 
 app.listen(port, () => {
   console.log(`Slide generator listening on http://localhost:${port}/`)
