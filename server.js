@@ -35,10 +35,13 @@ const ICONS = {
   'terminal': 0xf120,
   'code': 0xf121,
   'code-branch': 0xf126,
+  'play-circle': 0xf144,
+  'bug': 0xf188,
   'cubes': 0xf1b3,
   'file-pdf': 0xf1c1,
   'file-image': 0xf1c5,
   'file-code': 0xf1c9,
+  'pencil-ruler': 0xf5ae,
   'server': 0xf233,
   'route': 0xf4d7,
 };
@@ -132,6 +135,7 @@ class SlideGenerator {
 
   addCodeSlide(title, code, options) {
     let highlightLine = options && options.highlightLine;
+    let fontSize = options && options.fontSize || 14;
     if (highlightLine) {
       highlightLine = Array.isArray(highlightLine) ? highlightLine : [highlightLine];
     } else {
@@ -146,8 +150,8 @@ class SlideGenerator {
       const line = lines[i];
       const lineNo = i + 1;
       const opacity = shouldHighlight && !highlightLine.includes(lineNo) ? 0.3 : 1.0;
-      this._doc.fillColor(this.fgColor).font(FONT_MONO).opacity(0.2).fontSize(12).text(lineNo, 10, y + 2.5, { lineBreak: false, width: 20, align: 'right' });
-      this._doc.fillColor(this.fgColor).font(FONT_MONO).opacity(opacity).fontSize(14).text(line, 50, y, { lineBreak: false });
+      this._doc.fillColor(this.fgColor).font(FONT_MONO).opacity(0.2).fontSize(fontSize - 2).text(lineNo, 10, y + 2.5, { lineBreak: false, width: 20, align: 'right' });
+      this._doc.fillColor(this.fgColor).font(FONT_MONO).opacity(opacity).fontSize(fontSize).text(line, 50, y, { lineBreak: false });
       this._doc.opacity(1.0);
       y += 18;
     }
@@ -191,8 +195,10 @@ app.get('/slides', async (req, res) => {
     await _generateWeek1Slides(slides, name);
   } else if (week === 2) {
     await _generateWeek2Slides(slides, name);
+  } else if (week === 3) {
+    await _generateWeek3Slides(slides, name);
   }
-  
+
   slides.end();
 });
 
@@ -356,6 +362,102 @@ async function _generateWeek2Slides(slides, name) {
   // slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 15, comment: 'Print out the output string. We could write it to a file as well if we wanted to.'});
   // slides.addCodeSlide('Command Line "Encryption" Tool', codeEncrypt, { highlightLine: 18, comment: '`process.argv` is a list of our command line arguments. Argument 2 is the filename.'});
 
+  slides.addTitleSlide(`Thanks ${name}!`);
+  for (let i = 0; i < 100; i++) {
+    const size = randomChoice([12, 24, 36, 48]);
+    const x = random(-size, PAGE_WIDTH);
+    const y = random(-size, PAGE_HEIGHT);
+    slides._doc.opacity(0.2);
+    slides._addIcon('heart', size, x, y);
+    slides._doc.opacity(1.0);
+  }
+  slides._addFootNote('Code: https://github.com/fdb/hyf-nodejs-slides');
+}
+
+
+async function _generateWeek3Slides(slides, name) {
+  slides.addBulletsSlide('Week 3 Plan', [
+    'Homework Review',
+    'Debugging Techniques',
+    'Modules and require',
+    'Node.js event loop',
+    'Homework: DIY Wiki Part #2',
+  ]);
+
+  slides.addIconSlide('Homework Review', 'pencil-ruler');
+
+
+  slides.addIconSlide('Debugging Techniques', 'bug');
+  slides.addTextSlide('Debugging Techniques', 'Debugging is more than \n"making the bug go away."', { fontSize: 48 });
+
+  slides.addBulletsSlide('Debugging Techniques', [
+    'Work out *why* the software is behaving unexpectedly.',
+    'Fix the problem.',
+    'Avoid breaking anything else.',
+    'Maintain or improve the code quality.',
+    'Ensure the same problem does not occur elsewhere / again.'
+  ]);
+
+
+  slides.addBulletsSlide('Core Debugging Process', [
+    'Reproduce',
+    'Diagnose',
+    'Fix',
+    'Reflect',
+  ]);
+
+  slides.addIconSlide('Reproduce', 'play-circle');
+
+  slides.addBulletsSlide('Reproducing', [
+    'Reproduce first, ask questions later',
+    'Start with the obvious',
+    'Control the software',
+    'Control the environment',
+    'Control the inputs',
+    'As simple as possible',
+  ]);
+
+  slides.addBulletsSlide('Diagnose', [
+    'The Scientific Method',
+    'Divide and Conquer',
+    'Control the software',
+    'Control the environment',
+    'Control the inputs',
+    'As simple as possible',
+  ]);
+
+  slides.addTextSlide('Divide and Conquer', 'Use the Scientific Method. Have a hypothesis and test it.', { fontSize: 48 });
+
+  const bugsBodyBody1 = await readFileAsync('examples/bugs-body-body-1.js', 'utf-8');
+  const bugsBodyBody2 = await readFileAsync('examples/bugs-body-body-2.js', 'utf-8');
+  const bugsBodyBody3 = await readFileAsync('examples/bugs-body-body-3.js', 'utf-8');
+  const bugsBodyBody4 = await readFileAsync('examples/bugs-body-body-4.js', 'utf-8');
+  slides.addCodeSlide('Example: [object Object]', bugsBodyBody1);
+  slides.addCodeSlide('Example: [object Object]', bugsBodyBody2);
+  slides.addCodeSlide('Example: [object Object]', bugsBodyBody2, { highlightLine: [3, 4], comment: 'Split out the req.body into its own variable so we can log it.' });
+  slides.addCodeSlide('Example: [object Object]', bugsBodyBody3);
+  slides.addCodeSlide('Example: [object Object]', bugsBodyBody3, { highlightLine: 4, comment: 'Verify the *shape* of the object.' });
+  slides.addCodeSlide('Example: [object Object]', bugsBodyBody3, { highlightLine: 4, comment: 'Output: [ \'body\' ]' });
+  slides.addCodeSlide('Example: [object Object]', bugsBodyBody4);
+
+  slides.addTextSlide('Diagnose', 'Divide and Conquer: the "binary chop" method', { fontSize: 48 });
+
+  const bugsHtmlEntities = await readFileAsync('examples/bugs-html-entities-1.js', 'utf-8');
+  slides.addCodeSlide('Example: empty page', bugsHtmlEntities);
+  slides.addImageSlide('media/bugs-html-entities-dom.png');
+  slides.addImageSlide('media/bugs-html-entities-network.png');
+  slides.addImageSlide('media/bugs-html-entities-fixed.png');
+
+  slides.addTextSlide('Diagnose', 'Are you changing the right thing?', { fontSize: 48 });
+
+  const bugsCssNoEffect1 = await readFileAsync('examples/bugs-css-no-effect-1.txt', 'utf-8');
+  const bugsCssNoEffect2 = await readFileAsync('examples/bugs-css-no-effect-2.txt', 'utf-8');
+  const bugsCssNoEffect3 = await readFileAsync('examples/bugs-css-no-effect-3.txt', 'utf-8');
+  slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect1, { fontSize: 9.5 });
+  slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect2, { fontSize: 9.5 });
+  slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect2, { fontSize: 9.5, highlightLine: 8 });
+  slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect3, { fontSize: 9.5, highlightLine: 8 });
+
   slides.addIconSlide('Modules and require', 'cubes');
 
   slides.addTextSlide('Node.js Modules', 'When projects become bigger, we use modules to split them up.', { fontSize: 24 });
@@ -366,7 +468,7 @@ async function _generateWeek2Slides(slides, name) {
   slides.addCodeSlide('Modules: index.js', codeModulesIndex);
   slides.addCodeSlide('Modules: index.js', codeModulesIndex, { highlightLine: 1, comment: 'Import something from our own module. Note the `./` syntax to import from your local directory instead of node_modules.'});
   slides.addCodeSlide('Modules: index.js', codeModulesIndex, { highlightLine: 4, comment: 'Use the function to reverse the string.'});
-  
+
   const codeModulesStringUtils = await readFileAsync('examples/modules/string-utils.js', 'utf-8');
   slides.addCodeSlide('Modules: string-utils.js', codeModulesStringUtils);
   slides.addCodeSlide('Modules: string-utils.js', codeModulesStringUtils, { highlightLine: 1, comment: 'We need to be explicit on which functions from a file to export. We can assign it to `exports` like here, or use `module.exports`.'});
@@ -420,17 +522,6 @@ async function _generateWeek2Slides(slides, name) {
   slides.addCodeSlide('Express server returning PDF', codeGeneratePDF, { highlightLine: [8, 9, 10, 11], comment: 'We create a new PDFKit document, write out a string and send the document to the client.'});
   slides.addImageSlide('media/generate-pdf.png', 'Generating a PDF file from Express using PDFKit.');
   slides.addImageSlide('media/pdf-invoice.png', 'This is used to generate PDF invoices, for example (Example: Prince by YesLogic).');
-  
-  slides.addTitleSlide(`Thanks ${name}!`);
-  for (let i = 0; i < 100; i++) {
-    const size = randomChoice([12, 24, 36, 48]);
-    const x = random(-size, PAGE_WIDTH);
-    const y = random(-size, PAGE_HEIGHT);
-    slides._doc.opacity(0.2);
-    slides._addIcon('heart', size, x, y);
-    slides._doc.opacity(1.0);
-  }
-  slides._addFootNote('Code: https://github.com/fdb/hyf-nodejs-slides');
 }
 
 app.listen(port, () => {
