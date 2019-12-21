@@ -439,10 +439,13 @@ async function _generateWeek3Slides(slides, name) {
   slides.addCodeSlide('Example: [object Object]', bugsBodyBody1);
   slides.addCodeSlide('Example: [object Object]', bugsBodyBody2);
   slides.addCodeSlide('Example: [object Object]', bugsBodyBody2, { highlightLine: [3, 4], comment: 'Split out the req.body into its own variable so we can log it.' });
+  slides.addCodeSlide('Example: [object Object]', bugsBodyBody2, { highlightLine: [3, 4], comment: 'Result: { "body": "Lorem ipsum dolor es sit....." }' });
   slides.addCodeSlide('Example: [object Object]', bugsBodyBody3);
   slides.addCodeSlide('Example: [object Object]', bugsBodyBody3, { highlightLine: 4, comment: 'Verify the *shape* of the object.' });
   slides.addCodeSlide('Example: [object Object]', bugsBodyBody3, { highlightLine: 4, comment: 'Output: [ \'body\' ]' });
   slides.addCodeSlide('Example: [object Object]', bugsBodyBody4);
+
+  slides.addTextSlide('Diagnose', 'Conclusion:\nIgnore Nothing. Trust the tingly feeling that something is "off".', { fontSize: 48 });
 
   slides.addTextSlide('Diagnose', 'Divide and Conquer: the "binary chop" method', { fontSize: 48 });
 
@@ -452,15 +455,20 @@ async function _generateWeek3Slides(slides, name) {
   slides.addImageSlide('media/bugs-html-entities-network.png');
   slides.addImageSlide('media/bugs-html-entities-fixed.png');
 
+  slides.addTextSlide('Diagnose', 'Conclusion:\nNarrow down your search.', { fontSize: 48 });
+
   slides.addTextSlide('Diagnose', 'Are you changing the right thing?', { fontSize: 48 });
 
   const bugsCssNoEffect1 = await readFileAsync('examples/bugs-css-no-effect-1.txt', 'utf-8');
   const bugsCssNoEffect2 = await readFileAsync('examples/bugs-css-no-effect-2.txt', 'utf-8');
   const bugsCssNoEffect3 = await readFileAsync('examples/bugs-css-no-effect-3.txt', 'utf-8');
   slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect1, { fontSize: 9.5 });
+  slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect1, { fontSize: 9.5, highlightLine: 17 });
+  slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect2, { fontSize: 9.5, highlightLine: 17 });
   slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect2, { fontSize: 9.5 });
   slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect2, { fontSize: 9.5, highlightLine: 8 });
-  slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect3, { fontSize: 9.5, highlightLine: 8 });
+  slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect2, { fontSize: 9.5, highlightLine: 15 });
+  slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect3, { fontSize: 9.5, highlightLine: [8, 15] });
 
   slides.addIconSlide('Rubber Duck Debugging', 'dragon');
 
@@ -487,7 +495,7 @@ async function _generateWeek3Slides(slides, name) {
   slides.addIconSlide('Modules and require', 'cubes');
 
   slides.addTextSlide('Node.js Modules', 'When projects become bigger, we use modules to split them up.', { fontSize: 24 });
-  slides.addTextSlide('Node.js Modules', 'When you import external codes, you also use modules.', { fontSize: 24 });
+  slides.addTextSlide('Node.js Modules', 'When you import external code, you also use modules.', { fontSize: 24 });
   slides.addTextSlide('Node.js Modules', 'There\'s not much difference between your own modules and imported modules.', { fontSize: 24 });
 
   const codeModulesIndex = await readFileAsync('examples/modules/index.js', 'utf-8');
@@ -548,6 +556,17 @@ async function _generateWeek3Slides(slides, name) {
   slides.addCodeSlide('Express server returning PDF', codeGeneratePDF, { highlightLine: [8, 9, 10, 11], comment: 'We create a new PDFKit document, write out a string and send the document to the client.'});
   slides.addImageSlide('media/generate-pdf.png', 'Generating a PDF file from Express using PDFKit.');
   slides.addImageSlide('media/pdf-invoice.png', 'This is used to generate PDF invoices, for example (Example: Prince by YesLogic).');
+
+  slides.addTitleSlide(`Thanks ${name}!`);
+  for (let i = 0; i < 100; i++) {
+    const size = randomChoice([12, 24, 36, 48]);
+    const x = random(-size, PAGE_WIDTH);
+    const y = random(-size, PAGE_HEIGHT);
+    slides._doc.opacity(0.2);
+    slides._addIcon('heart', size, x, y);
+    slides._doc.opacity(1.0);
+  }
+  slides._addFootNote('Code: https://github.com/fdb/hyf-nodejs-slides');
 }
 
 app.listen(port, () => {
