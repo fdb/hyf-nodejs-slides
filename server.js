@@ -31,7 +31,9 @@ const ICONS = {
   'star': 0xf005,
   'question-circle': 0xf059,
   'cogs': 0xf085,
+  'stethoscope': 0xf0f1,
   'angle-right': 0xf105,
+  'circle': 0xf111,
   'terminal': 0xf120,
   'code': 0xf121,
   'code-branch': 0xf126,
@@ -44,6 +46,8 @@ const ICONS = {
   'pencil-ruler': 0xf5ae,
   'server': 0xf233,
   'route': 0xf4d7,
+  'dragon': 0xf6d5,
+  'hammer': 0xf6e3,
 };
 
 function randomChoice(l) {
@@ -398,7 +402,6 @@ async function _generateWeek3Slides(slides, name) {
     'Ensure the same problem does not occur elsewhere / again.'
   ]);
 
-
   slides.addBulletsSlide('Core Debugging Process', [
     'Reproduce',
     'Diagnose',
@@ -417,16 +420,17 @@ async function _generateWeek3Slides(slides, name) {
     'As simple as possible',
   ]);
 
-  slides.addBulletsSlide('Diagnose', [
-    'The Scientific Method',
-    'Divide and Conquer',
-    'Control the software',
-    'Control the environment',
-    'Control the inputs',
-    'As simple as possible',
-  ]);
+  slides.addTextSlide('Reproduce first', 'Don\'t start fixing things unless you know what the problem is.', { fontSize: 48 });
 
-  slides.addTextSlide('Divide and Conquer', 'Use the Scientific Method. Have a hypothesis and test it.', { fontSize: 48 });
+  slides.addTextSlide('Start with the obvious', 'Read the bug reports.', { fontSize: 48 });
+  slides.addTextSlide('Control the software', 'Use the same version!', { fontSize: 48 });
+  slides.addTextSlide('Control the environment', 'Use the same OS / Browser.', { fontSize: 48 });
+  slides.addTextSlide('Control the inputs', 'Track the inputs if possible (using sentry.io)', { fontSize: 48 });
+  slides.addTextSlide('As simple as possible', 'Remove everything that\'s not needed to trigger the bug.', { fontSize: 48 });
+
+  slides.addIconSlide('Diagnose', 'stethoscope');
+
+  slides.addTextSlide('Diagnose', 'Use the Scientific Method. Have a hypothesis and test it.', { fontSize: 48 });
 
   const bugsBodyBody1 = await readFileAsync('examples/bugs-body-body-1.js', 'utf-8');
   const bugsBodyBody2 = await readFileAsync('examples/bugs-body-body-2.js', 'utf-8');
@@ -457,6 +461,28 @@ async function _generateWeek3Slides(slides, name) {
   slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect2, { fontSize: 9.5 });
   slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect2, { fontSize: 9.5, highlightLine: 8 });
   slides.addCodeSlide('Example: Font does not work', bugsCssNoEffect3, { fontSize: 9.5, highlightLine: 8 });
+
+  slides.addIconSlide('Rubber Duck Debugging', 'dragon');
+
+  slides.addIconSlide('Fix', 'hammer');
+
+  slides.addBulletsSlide('Fix', [
+    'Fix the problem.',
+    'Avoid introducing regressions.',
+    'Maintain or improve the code quality.'
+  ]);
+
+  slides.addTextSlide('Fix', 'Write a test that fails, then fix it so it passes.', { fontSize: 24 });
+  
+  slides.addIconSlide('Reflect', 'circle');  
+
+
+  slides.addBulletsSlide('Make sure that it doesn\'t happen again', [
+    'Coding standards',
+    'Testing standards',
+    'Documentation standards',
+    'Reporting / Tracking',
+  ]);
 
   slides.addIconSlide('Modules and require', 'cubes');
 
